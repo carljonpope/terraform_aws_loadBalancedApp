@@ -149,11 +149,6 @@ resource "aws_security_group" "publicSecurityGroup1" {
 
 }
 
-
-
-
-
-/*
 resource "aws_launch_template" "webServerTemplate2" {
     name = "webServerTemplate2"
     image_id = "ami-0c2045f8db5e396d8"
@@ -175,11 +170,11 @@ resource "aws_autoscaling_group" "asg1" {
     health_check_type = "ELB"
     force_delete = true
     placement_group = aws_placement_group.pg1.id
-    vpc_zone_identifier = ["subnet-171a816d","subnet-b58f26f9"]
+    vpc_zone_identifier = [aws_subnet.eu-west-2a-public.id,aws_subnet.eu-west-2b-public.id]
 
     launch_template {
         id = aws_launch_template.webServerTemplate2.id
         version = "$Latest"
     }
 }
-*/
+
