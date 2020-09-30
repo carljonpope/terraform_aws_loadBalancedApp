@@ -19,8 +19,141 @@ provider "aws" {
 #  security_groups = ["webServerGroup_eu-west-2"]
 #}
 
+resource "aws_vpc" "mainVpc" {
+    cidr_block = "192.168.0.0/16"
+
+    tags = {
+        Name = "mainVpc"
+    }
+}
+
+resource "aws_internet_gateway" "default" {
+    vpc_id = aws_vpc.mainVpc.id
+}
+
+resource "aws_subnet" "eu-west-2a-public" {
+    vpc_id = aws_vpc.mainVpc.id
+    cidr_block = "192.168.1.0/24"
+    availability_zone = "eu-west-2a"
+    tags = {
+        Name = "Public Subnet-2a"
+    }
+}
+
+resource "aws_subnet" "eu-west-2b-public" {
+    vpc_id = aws_vpc.mainVpc.id
+    cidr_block = "192.168.2.0/24"
+    availability_zone = "eu-west-2b"
+    tags = {
+        Name = "Public Subnet-2b"
+    }
+}
+
+resource "aws_network_acl" "mainVpcNacl" {
+    vpc_id = aws_vpc.mainVpc.id
+    subnet_ids = [aws_subnet.eu-west-2a-public.id,aws_subnet.eu-west-2b-public.id]
+
+    ingress {
+        rule_no = 10
+        protocol = "tcp"
+        action = "allow"
+        from_port = 80
+        to_port = 80
+        cidr_block = "86.5.167.59/32"
+    }
+
+    ingress {
+        rule_no = 20
+        protocol = "tcp"
+        action = "allow"
+        from_port = 443
+        to_port = 443
+        cidr_block = "86.5.167.59/32"
+    }
+
+    ingress {
+        rule_no = 30
+        protocol = "tcp"
+        action = "allow"
+        from_port = 22
+        to_port = 22
+        cidr_block = "86.5.167.59/32"
+    }
+
+    egress {
+        rule_no = 10
+        protocol = "tcp"
+        action = "allow"
+        from_port = 80
+        to_port = 80
+        cidr_block = "0.0.0.0/0"
+    }
+
+    egress {
+        rule_no = 20
+        protocol = "tcp"
+        action = "allow"
+        from_port = 443
+        to_port = 443
+        cidr_block = "0.0.0.0/0"
+    }
+
+    egress {
+        rule_no = 30
+        protocol = "tcp"
+        action = "allow"
+        from_port = 22
+        to_port = 22
+        cidr_block = "0.0.0.0/0"
+    }
+
+    tags = {
+        Name = "mainVpcNacl"
+    }
+}
+
+resource "aws_security_group" "publicSecurityGroup1" {
+    name = "publicSecurityGroup1"
+    vpc_id = aws_vpc.mainVpc.id
+    tags = {
+        Name = "publicSecurityGroup1"
+    }
+
+    ingress {
+        from_port = 80
+        to_port = 80
+        protocol = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    ingress {
+        from_port = 443
+        to_port = 443
+        protocol = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    ingress {
+        from_port = 22
+        to_port = 22
+        protocol = "tcp"
+        cidr_blocks = ["86.5.167.59/32"]
+    }
+
+    egress {
+        from_port   = 0
+        to_port     = 0
+        protocol    = "-1"
+        cidr_blocks = ["0.0.0.0/0"]
+  }
+
+}
 
 
+
+
+
+/*
 resource "aws_launch_template" "webServerTemplate2" {
     name = "webServerTemplate2"
     image_id = "ami-0c2045f8db5e396d8"
@@ -49,3 +182,4 @@ resource "aws_autoscaling_group" "asg1" {
         version = "$Latest"
     }
 }
+*/
