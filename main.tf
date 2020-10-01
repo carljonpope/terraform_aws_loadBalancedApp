@@ -156,7 +156,7 @@ resource "aws_launch_template" "webServerTemplate2" {
     key_name = "keyPair1"
 
     network_interfaces {
-        assocaite_public_ip_address = true
+        associate_public_ip_address = true
     }
 }
 
