@@ -21,6 +21,7 @@ provider "aws" {
 
 resource "aws_vpc" "mainVpc" {
     cidr_block = "192.168.0.0/16"
+    enable_dns_hostnames = true
 
     tags = {
         Name = "mainVpc"
@@ -35,6 +36,7 @@ resource "aws_subnet" "eu-west-2a-public" {
     vpc_id = aws_vpc.mainVpc.id
     cidr_block = "192.168.1.0/24"
     availability_zone = "eu-west-2a"
+    map_public_ip_on_launch = true
     tags = {
         Name = "Public Subnet-2a"
     }
@@ -44,6 +46,7 @@ resource "aws_subnet" "eu-west-2b-public" {
     vpc_id = aws_vpc.mainVpc.id
     cidr_block = "192.168.2.0/24"
     availability_zone = "eu-west-2b"
+    map_public_ip_on_launch = true
     tags = {
         Name = "Public Subnet-2b"
     }
@@ -154,10 +157,11 @@ resource "aws_launch_template" "webServerTemplate2" {
     image_id = "ami-0c2045f8db5e396d8"
     instance_type = "t2.micro"
     key_name = "keyPair1"
+    vpc_security_group_ids = [aws_security_group.publicSecurityGroup1.id]
 
-    network_interfaces {
-        associate_public_ip_address = true
-    }
+ #   network_interfaces {
+ #       associate_public_ip_address = true
+ #   }
 }
 
 resource "aws_placement_group" "pg1" {
