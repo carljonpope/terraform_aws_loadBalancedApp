@@ -154,6 +154,10 @@ resource "aws_launch_template" "webServerTemplate2" {
     image_id = "ami-0c2045f8db5e396d8"
     instance_type = "t2.micro"
     key_name = "keyPair1"
+
+    network_interfaces {
+        assocaite_public_ip_address = true
+    }
 }
 
 resource "aws_placement_group" "pg1" {
