@@ -185,7 +185,6 @@ resource "aws_launch_template" "webServerTemplate2" {
     image_id = "ami-0c2045f8db5e396d8"
     instance_type = "t2.micro"
     key_name = "keyPair1"
-    #vpc_security_group_ids = ["sg-060ff13103a27e925"]
     vpc_security_group_ids = [aws_security_group.publicSecurityGroup1.id]
 
 
@@ -208,7 +207,6 @@ resource "aws_autoscaling_group" "asg1" {
     health_check_type = "ELB"
     force_delete = true
     placement_group = aws_placement_group.pg1.id
-    #vpc_zone_identifier = ["subnet-171a816d", "subnet-1cf7a875"]
     vpc_zone_identifier = [aws_subnet.eu-west-2a-public.id,aws_subnet.eu-west-2b-public.id]
 
     launch_template {
