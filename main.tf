@@ -32,6 +32,25 @@ resource "aws_internet_gateway" "default" {
     vpc_id = aws_vpc.mainVpc.id
 }
 
+resource "aws_route_table" "mainRouteTable" {
+    vpc_id = aws_vpc.mainVpc.id
+    
+    route {
+        cidr_block = "0.0.0.0/0"
+        gateway_id = aws_internet_gateway.default.id
+    }
+    
+    tags = {
+        Name = "mainRouteTable"
+    }
+}
+
+resource "aws_main_route_table_association" "routeTableAssoc" {
+    vpc_id = aws_vpc.mainVpc.id
+    route_table_id = aws_route_table.mainRouteTable.id
+
+}
+
 resource "aws_subnet" "eu-west-2a-public" {
     vpc_id = aws_vpc.mainVpc.id
     cidr_block = "192.168.1.0/24"
@@ -110,6 +129,15 @@ resource "aws_network_acl" "mainVpcNacl" {
         cidr_block = "0.0.0.0/0"
     }
 
+    egress {
+        rule_no = 40
+        protocol = "tcp"
+        action = "allow"
+        from_port = 1024
+        to_port = 65535
+        cidr_block = "0.0.0.0/0"        
+    }
+
     tags = {
         Name = "mainVpcNacl"
     }
@@ -157,7 +185,9 @@ resource "aws_launch_template" "webServerTemplate2" {
     image_id = "ami-0c2045f8db5e396d8"
     instance_type = "t2.micro"
     key_name = "keyPair1"
+    #vpc_security_group_ids = ["sg-060ff13103a27e925"]
     vpc_security_group_ids = [aws_security_group.publicSecurityGroup1.id]
+
 
  #   network_interfaces {
  #       associate_public_ip_address = true
@@ -178,10 +208,11 @@ resource "aws_autoscaling_group" "asg1" {
     health_check_type = "ELB"
     force_delete = true
     placement_group = aws_placement_group.pg1.id
+    #vpc_zone_identifier = ["subnet-171a816d", "subnet-1cf7a875"]
     vpc_zone_identifier = [aws_subnet.eu-west-2a-public.id,aws_subnet.eu-west-2b-public.id]
 
     launch_template {
-        id = aws_launch_template.webServerTemplate2.id
+        id = aws_launch_template.webServerTemplate2.id 
         version = "$Latest"
     }
 }
