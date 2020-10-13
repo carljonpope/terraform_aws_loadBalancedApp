@@ -208,22 +208,14 @@ resource "aws_lb_listener" "appLb1FrontEnd" {
 
 resource "aws_launch_template" "webServerTemplate2" {
     name = "webServerTemplate2"
-    image_id = "ami-0c2045f8db5e396d8"
+    image_id = "ami-08ae9241eb68391ba"
     instance_type = "t2.micro"
     key_name = "keyPair1"
     vpc_security_group_ids = [aws_security_group.publicSecurityGroup1.id]
-    user_data = "echo TEST"
-    
-    #<<-EOF
-    #                    #!/bin/bash
-    #                    sudo su
-    #                    sudo systemctl start httpd
-    #                    EOF
 
-
- #   network_interfaces {
- #       associate_public_ip_address = true
- #   }
+    #network_interfaces {
+    #    associate_public_ip_address = true
+    #}
 }
 
 resource "aws_placement_group" "pg1" {
@@ -233,9 +225,9 @@ resource "aws_placement_group" "pg1" {
 
 resource "aws_autoscaling_group" "asg1" {
     name ="asg1"
-    max_size = 1
+    max_size = 2
     min_size = 1
-    desired_capacity = 1
+    desired_capacity = 2
     health_check_grace_period = 300
     health_check_type = "ELB"
     force_delete = true
